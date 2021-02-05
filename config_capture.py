@@ -14,16 +14,15 @@ def open_ssh_conn(ip,device_type,username,password,enable,newfile_dir):
         conn = session.invoke_shell()
         time.sleep(0.5)
         
-        router_output = conn.recv(65535).decode()
-
-        if re.search(">",router_output.split("\n")[-1]):
-            hostname = re.findall("^(.*)>$",router_output.split("\n")[-1])[0]
+        device_output = conn.recv(65535).decode()
+        if re.search(">",device_output.split("\n")[-1]):
+            hostname = re.findall("^(.*)>$",device_output.split("\n")[-1])[0]
             conn.send('enable\n')
             time.sleep(0.5)
             conn.send('%s\n'%enable)
             time.sleep(0.5)
         else:
-            hostname = re.findall("^(.*)#$",router_output.split("\n")[-1])[0]
+            hostname = re.findall("^(.*)#$",device_output.split("\n")[-1])[0]
             
         if device_type == "router":
             selected_cmd_file = open('command_list_router.txt', 'r')
@@ -37,15 +36,15 @@ def open_ssh_conn(ip,device_type,username,password,enable,newfile_dir):
                 time.sleep(0.5)
             
         selected_cmd_file.close()
-        router_output = conn.recv(9999999).decode()
+        device_output = conn.recv(9999999).decode()
         
-        if re.search('% Invalid input detected at', router_output):
+        if re.search('% Invalid input detected at', device_output):
             print('* There was at least one IOS syntax error on device %s' % ip)
         else:
             print('\nDONE for device %s (%s)'%(hostname,ip))
             
         new_f = open(newfile_dir+'\\'+hostname+'.txt','w+')
-        new_f.write(router_output.decode())
+        new_f.write(device_output.decode())
         new_f.close()        
         session.close()
 
