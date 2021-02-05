@@ -19,14 +19,14 @@ def open_ssh_conn(ip,device_type,username,password,enable,newfile_dir):
         if re.search(">",router_output.split("\n")[-1]):
             hostname = re.findall("^(.*)>$",router_output.split("\n")[-1])[0]
             conn.send('enable\n')
-            time.sleep(0.7)
+            time.sleep(0.5)
             conn.send('%s\n'%enable)
-            time.sleep(0.7)
+            time.sleep(0.5)
         else:
             hostname = re.findall("^(.*)#$",router_output.split("\n")[-1])[0]
             
         if device_type == "router":
-            selected_cmd_file = open('command_list.txt', 'r')
+            selected_cmd_file = open('command_list_router.txt', 'r')
             selected_cmd_file.seek(0)
         elif device_type == "switch":
             selected_cmd_file = open('command_list_switch.txt', 'r')
@@ -35,13 +35,6 @@ def open_ssh_conn(ip,device_type,username,password,enable,newfile_dir):
         for each_line in selected_cmd_file.readlines():
             conn.send(each_line)
                 time.sleep(0.5)
-            
-        if device_type == "router":
-            selected_cmd_file = open('command_list_router.txt', 'r')
-            selected_cmd_file.seek(0)
-        elif device_type == "switch":
-            selected_cmd_file = open('command_list_switch.txt', 'r')
-            selected_cmd_file.seek(0)
             
         selected_cmd_file.close()
         router_output = conn.recv(9999999).decode()
@@ -65,7 +58,7 @@ def open_ssh_conn(ip,device_type,username,password,enable,newfile_dir):
 if __name__ == '__main__':
     device_list = open('device_list.txt','r')
     ip,device_type,username,password,enable = [],[],[],[],[]
-    newfile_dir = "D:\\Office Work Materials\\DOKU\\Back Up Config\\Capture\\Backup_Network_DOKU-NTT %s"%date.today().strftime("%d-%m-%Y")
+    newfile_dir = "path/to/file/backupfile %s"%date.today().strftime("%d-%m-%Y")
     try:
         print("Creating new folder at %s"%newfile_dir)
         os.mkdir(newfile_dir)
@@ -87,6 +80,3 @@ if __name__ == '__main__':
 
     for x in range(len(ip)):
         open_ssh_conn(ip[x],device_type[x],username[x],password[x],enable[x],newfile_dir)
-
-   
-
